@@ -132,10 +132,7 @@ def main():
         atomsel = t.top.select('protein and name CA')
         logging.info(f'Selecting protein alpha carbons (N={len(atomsel)})')
     elif args.atomsel == 'heavy':
-        atomsel = [a.index for a in t.top.atoms if
-                   not a.residue.is_water and  # no solvent
-                   not a.residue.name.startswith('POP') and  # no lipids
-                   a.element.symbol in set(('C', 'N', 'O', 'P', 'S'))]
+        atomsel = t.top.select('protein and not type H')
         logging.info(f'Selecting protein heavy atoms (N={len(atomsel)})')
     elif args.atomsel == 'backbone':
         atomsel = t.top.select('protein and backbone')
@@ -169,9 +166,15 @@ def main():
     # Return info on minimum distance (and sqrt it)
     d = np.sqrt(min_dist[f])
     i, j = info[f]
+    
+    atom1, atom2 = t.topology.atom(i), t.topology.atom(j)
 
     logging.info((f'Minimum distance between periodic images is {d:6.3f} nm'
                   f' between atoms {i} and {j} at frame {f}'))
+       
+    logging.info((f'Atom {i} is {atom1.name}-{atom1.residue.name}-{atom1.residue.resSeq}, chain: {atom1.residue.chain.index}, segment: {atom1.residue.segment_id}'))
+
+    logging.info((f'Atom {j} is {atom2.name}-{atom2.residue.name}-{atom2.residue.resSeq}, chain: {atom2.residue.chain.index}, segment: {atom2.residue.segment_id}'))
 
 
 if __name__ == '__main__':
